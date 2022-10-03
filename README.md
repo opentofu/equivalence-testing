@@ -24,8 +24,8 @@ Terraform configurations.
 
 There are two available commands within the tool:
 
-- `equivalence-test update --goldens=examples/example_golden_files --tests=examples/example_test_cases --binary=terraform`
-- `equivalence-test diff --goldens=examples/example_golden_files --tests=examples/example_test_cases --binary=terraform`
+- `./terraform-equivalence-testing update --goldens=examples/example_golden_files --tests=examples/example_test_cases --binary=terraform`
+- `./terraform-equivalence-testing diff --goldens=examples/example_golden_files --tests=examples/example_test_cases --binary=terraform`
 
 The first command will iterate through the test cases in 
 `examples/example_test_cases`, run a set of Terraform commands while collecting
