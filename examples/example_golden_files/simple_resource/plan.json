@@ -1,0 +1,80 @@
+{
+  "configuration": {
+    "provider_config": {
+      "mock": {
+        "full_name": "registry.terraform.io/liamcervante/mock",
+        "name": "mock"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "mock_simple_resource.simple_resource",
+          "expressions": {
+            "id": {
+              "constant_value": "192977d6-b169-4170-a9d4-ee1dcef7c6ea"
+            },
+            "integer": {
+              "constant_value": 1
+            }
+          },
+          "mode": "managed",
+          "name": "simple_resource",
+          "provider_config_key": "mock",
+          "schema_version": 0,
+          "type": "mock_simple_resource"
+        }
+      ]
+    }
+  },
+  "format_version": "1.1",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "mock_simple_resource.simple_resource",
+          "mode": "managed",
+          "name": "simple_resource",
+          "provider_name": "registry.terraform.io/liamcervante/mock",
+          "schema_version": 0,
+          "sensitive_values": {},
+          "type": "mock_simple_resource",
+          "values": {
+            "bool": null,
+            "float": null,
+            "id": "192977d6-b169-4170-a9d4-ee1dcef7c6ea",
+            "integer": 1,
+            "number": null,
+            "string": null
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "mock_simple_resource.simple_resource",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "bool": null,
+          "float": null,
+          "id": "192977d6-b169-4170-a9d4-ee1dcef7c6ea",
+          "integer": 1,
+          "number": null,
+          "string": null
+        },
+        "after_sensitive": {},
+        "after_unknown": {},
+        "before": null,
+        "before_sensitive": false
+      },
+      "mode": "managed",
+      "name": "simple_resource",
+      "provider_name": "registry.terraform.io/liamcervante/mock",
+      "type": "mock_simple_resource"
+    }
+  ]
+}

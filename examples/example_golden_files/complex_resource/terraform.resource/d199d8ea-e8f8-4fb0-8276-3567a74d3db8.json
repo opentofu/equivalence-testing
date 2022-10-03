@@ -1,0 +1,71 @@
+{
+  "values": {
+    "id": {
+      "string": "d199d8ea-e8f8-4fb0-8276-3567a74d3db8"
+    },
+    "integer": {
+      "number": "2"
+    },
+    "list": {
+      "list": [
+        {
+          "object": {
+            "string": {
+              "string": "one.one"
+            }
+          }
+        },
+        {
+          "object": {
+            "string": {
+              "string": "one.two"
+            }
+          }
+        }
+      ]
+    },
+    "list_block": {
+      "list": [
+        {
+          "object": {
+            "list_block": {
+              "list": []
+            },
+            "set_block": {
+              "set": []
+            },
+            "string": {
+              "string": "two.one"
+            }
+          }
+        },
+        {
+          "object": {
+            "list_block": {
+              "list": []
+            },
+            "set_block": {
+              "set": []
+            },
+            "string": {
+              "string": "two.two"
+            }
+          }
+        }
+      ]
+    },
+    "object": {
+      "object": {
+        "bool": {
+          "boolean": true
+        },
+        "string": {
+          "string": "hello"
+        }
+      }
+    },
+    "set_block": {
+      "set": []
+    }
+  }
+}

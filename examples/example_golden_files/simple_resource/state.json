@@ -1,0 +1,26 @@
+{
+  "format_version": "1.0",
+  "values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "mock_simple_resource.simple_resource",
+          "mode": "managed",
+          "name": "simple_resource",
+          "provider_name": "registry.terraform.io/liamcervante/mock",
+          "schema_version": 0,
+          "sensitive_values": {},
+          "type": "mock_simple_resource",
+          "values": {
+            "bool": null,
+            "float": null,
+            "id": "192977d6-b169-4170-a9d4-ee1dcef7c6ea",
+            "integer": 1,
+            "number": null,
+            "string": null
+          }
+        }
+      ]
+    }
+  }
+}
