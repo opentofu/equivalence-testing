@@ -1,5 +1,7 @@
 package tests
 
+import "github.com/hashicorp/terraform-equivalence-testing/internal/terraform"
+
 // TestSpecification is a struct that provides the specification for a given
 // test case.
 //
@@ -12,4 +14,10 @@ package tests
 type TestSpecification struct {
 	IncludeFiles []string            `json:"include_files"`
 	IgnoreFields map[string][]string `json:"ignore_fields"`
+
+	// If Commands is empty, then we will execute a default set of commands:
+	// [init, plan, apply, show, show plan]. Otherwise, these are the set of
+	// commands that should be executed by the equivalence test framework for
+	// this test case.
+	Commands []terraform.Command `json:"commands"`
 }

@@ -74,7 +74,7 @@ func (test Test) RunWith(tf terraform.Terraform) (TestOutput, error) {
 		return TestOutput{}, err
 	}
 
-	files, err := tf.ExecuteTest(tmp, test.Specification.IncludeFiles)
+	files, err := tf.ExecuteTest(tmp, test.Specification.IncludeFiles, test.Specification.Commands...)
 	if err != nil {
 		return TestOutput{}, err
 	}

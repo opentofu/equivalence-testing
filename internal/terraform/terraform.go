@@ -10,6 +10,43 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec"
 )
 
+// Command is a struct that instructs the framework how to execute a custom
+// command. It covers the arguments that should be passed to Terraform, and
+// instructs whether the output should be captured and how it should be
+// captured.
+type Command struct {
+	// The Name of the command to execute. This field is used for logging when
+	// reporting which command might have failed.
+	Name string `json:"name"`
+
+	// A list of Arguments to pass to the Terraform binary, eg. `init`, `plan`,
+	// `show -json`, etc.
+	Arguments []string `json:"arguments"`
+
+	// CaptureOutput should be set to true if we want to record the output of
+	// this command and compare/copy it into the golden files.
+	CaptureOutput bool `json:"capture_output"`
+
+	// OutputFileName is the name of the file that the framework should write
+	// the captured output into.
+	//
+	// This field is ignored if CaptureOutput is false.
+	OutputFileName string `json:"output_file_name"`
+
+	// StreamsJsonOutput tells the framework the output isn't going to arrive in
+	// pure JSON but as a list of structured JSON statements. In this case the
+	// framework will strip out any `\n` characters, put the output inside a
+	// JSON list: `[`, `]`, and finally append the statements together with a
+	// `,` character.
+	//
+	// This command basically turns the structured output into a JSON list that
+	// can be handled by the rest of the framework. An example of this is the
+	// output of an apply command: `terraform apply -json`.
+	//
+	// This field is ignored if CaptureOutput is false.
+	StreamsJsonOutput bool `json:"streams_json_output"`
+}
+
 // Terraform is an interface that can execute a single equivalence test within a
 // directory using the ExecuteTest method.
 //
@@ -18,7 +55,7 @@ type Terraform interface {
 	// ExecuteTest executes a series of terraform commands in order and returns the
 	// output of the apply and plan steps, the Terraform state, and any additionally
 	// requested files.
-	ExecuteTest(directory string, includeFiles []string) (map[string]interface{}, error)
+	ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]interface{}, error)
 
 	// Version returns the version of the underlying Terraform binary.
 	Version() string
@@ -64,7 +101,7 @@ func (t *terraform) Version() string {
 	return t.version
 }
 
-func (t *terraform) ExecuteTest(directory string, includeFiles []string) (map[string]interface{}, error) {
+func (t *terraform) ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]interface{}, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -75,23 +112,37 @@ func (t *terraform) ExecuteTest(directory string, includeFiles []string) (map[st
 	}
 	defer os.Chdir(wd)
 
-	if err := t.init(); err != nil {
-		return nil, err
-	}
-
-	if err := t.plan(); err != nil {
-		return nil, err
-	}
-
 	files := map[string]interface{}{}
-	if files["apply.json"], err = t.apply(); err != nil {
-		return nil, err
-	}
-	if files["state.json"], err = t.showState(); err != nil {
-		return nil, err
-	}
-	if files["plan.json"], err = t.showPlan(); err != nil {
-		return nil, err
+	if len(commands) == 0 {
+		// We weren't given custom commands so let's run the default set of
+		// commands.
+
+		if err := t.init(); err != nil {
+			return nil, err
+		}
+		if err := t.plan(); err != nil {
+			return nil, err
+		}
+		if files["apply.json"], err = t.apply(); err != nil {
+			return nil, err
+		}
+		if files["state.json"], err = t.showState(); err != nil {
+			return nil, err
+		}
+		if files["plan.json"], err = t.showPlan(); err != nil {
+			return nil, err
+		}
+	} else {
+		for _, command := range commands {
+			output, err := t.command(command)
+			if err != nil {
+				return nil, err
+			}
+
+			if output != nil {
+				files[command.OutputFileName] = output
+			}
+		}
 	}
 
 	for _, includeFile := range includeFiles {
@@ -107,6 +158,22 @@ func (t *terraform) ExecuteTest(directory string, includeFiles []string) (map[st
 	}
 
 	return files, nil
+}
+
+func (t *terraform) command(command Command) (interface{}, error) {
+	capture, err := run(exec.Command(t.binary, command.Arguments...), command.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	if !command.CaptureOutput {
+		return nil, nil
+	}
+
+	if command.StreamsJsonOutput {
+		return capture.ToJson(true)
+	}
+	return capture.ToJson(false)
 }
 
 func (t *terraform) init() error {
