@@ -14,6 +14,10 @@ type capture struct {
 	stderr *bytes.Buffer
 }
 
+func (c capture) ToString() string {
+	return c.stdout.String()
+}
+
 func (c capture) ToJson(structured bool) (interface{}, error) {
 	var target []byte
 	if structured {

@@ -111,10 +111,12 @@ Example golden directory structure:
 - `my_golden_files/`
   - `test_case_one/`
     - `apply.json`
+    - `plan`
     - `plan.json`
     - `state.json`
   - `test_case_two/`
       - `apply.json`
+      - `plan`
       - `plan.json`
       - `state.json`
 
@@ -136,15 +138,19 @@ Currently, the test specification has three fields:
 
 ### IncludeFiles
 
-The `apply.json`, `state.json`, and `plan.json` golden files are included by all
-tests automatically.
+The `apply.json`, `state.json`, `plan.json`, and `plan`, golden files are 
+included by all tests automatically.
 
-- The `apply.json` file contains the output of `terraform apply -json equivalence_test_plan`.
+- The `apply.json` file contains the output of 
+  `terraform apply -json equivalence_test_plan`.
 - The `state.json` file contains the output of `terraform show -json`.
-- The `plan.json` file contains the output of `terraform show -json equivalence_test_plan`.
+- The `plan.json` file contains the output of
+  `terraform show -json equivalence_test_plan`.
+- The `plan` file contains the raw human-readable captured output of the 
+  original `terraform plan` command.
 
 You can then use this field to specify any additional files that should also be 
-considered golden files. **Any additional files must be JSON formatted.**
+considered golden files.
 
 ### IgnoreFields
 
@@ -168,6 +174,9 @@ If you need any other fields removed, either from the default golden files or
 additional golden files, then you can specify them here as part of the test
 specification.
 
+Note, that you can only remove fields from JSON files. Other file types will not
+be included when processing the `IgnoreFields` inputs.
+
 ### Commands
 
 You can specify a custom list of terraform commands to execute instead of the 
@@ -179,7 +188,8 @@ Each command has 5 required fields:
 - `arguments`
 - `capture_output`
 - `output_file_name`
-- `has_strucutred_json_output`
+- `has_json_output`
+- `streams_json_output`
 
 `name` (**required**) is a string only used for logging when reporting which 
 commands might have failed, so you should make it unique and descriptive enough
@@ -198,6 +208,11 @@ file for diffing or updating.
 that sets the filename that should be used for the output. If `capture_output` 
 is `false`, this field is ignored.
 
+`has_json_output` (**optional**, defaults to `false`) is a boolean that tells 
+the equivalence tests that the output of this command will be in JSON format.
+The framework will only use the `IgnoreFields` specification on JSON formatted
+files so if you wish to remove any part of the output this must be true.
+
 `streams_json_output` (**optional**, defaults to `false`) is a boolean
 that tells the equivalence tests that the output is in the "structured JSON" 
 format. Some Terraform commands, such as `terraform apply -json`, stream a list
@@ -205,7 +220,7 @@ of individual JSON objects to the output. This form of output is not a valid
 JSON object when reading the output as a whole. When this value is true the 
 framework will convert the output into a valid JSON object by replacing any `\n`
 characters with `,` and putting the entire output in between `[` and `]`. If
-`capture_output` is `false`, this field is ignored.
+`capture_output` or `has_json_output` is `false`, this field is ignored.
 
 #### Examples
 
@@ -222,14 +237,17 @@ the custom `commands` entry in the test specification.
     },
     {
       "name": "plan",
-      "arguments": ["plan", "-out=equivalence_test_plan"],
-      "capture_output": false
+      "arguments": ["plan", "-out=equivalence_test_plan", "-no-color"],
+      "capture_output": true,
+      "output_file_name": "plan",
+      "has_json_output": false
     },
     {
       "name": "apply",
       "arguments": ["apply", "-json", "equivalence_test_plan"],
       "capture_output": true,
       "output_file_name": "apply.json",
+      "has_json_output": true,
       "streams_json_output": true
     },
     {
@@ -237,6 +255,7 @@ the custom `commands` entry in the test specification.
       "arguments": ["show", "-json"],
       "capture_output": true,
       "output_file_name": "state.json",
+      "has_json_output": true,
       "streams_json_output": false
     },
     {
@@ -244,6 +263,7 @@ the custom `commands` entry in the test specification.
       "arguments": ["show", "-json", "equivalence_test_plan"],
       "capture_output": true,
       "output_file_name": "plan.json",
+      "has_json_output": true,
       "streams_json_output": false
     }
   ]

@@ -1,0 +1,42 @@
+data.mock_simple_resource.simple_resource: Reading...
+data.mock_simple_resource.simple_resource: Read complete after 0s [id=192977d6-b169-4170-a9d4-ee1dcef7c6ea]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # mock_complex_resource.complex_resource will be created
+  + resource "mock_complex_resource" "complex_resource" {
+      + id      = "d199d8ea-e8f8-4fb0-8276-3567a74d3db8"
+      + integer = 2
+      + list    = [
+          + {
+              + string = "one.one"
+            },
+          + {
+              + string = "one.two"
+            },
+        ]
+      + object  = {
+          + bool   = true
+          + string = "hello"
+        }
+
+      + list_block {
+          + string = "two.one"
+        }
+      + list_block {
+          + string = "two.two"
+        }
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+─────────────────────────────────────────────────────────────────────────────
+
+Saved the plan to: equivalence_test_plan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "equivalence_test_plan"

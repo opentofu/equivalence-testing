@@ -1,0 +1,21 @@
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # mock_simple_resource.simple_resource will be created
+  + resource "mock_simple_resource" "simple_resource" {
+      + id      = "192977d6-b169-4170-a9d4-ee1dcef7c6ea"
+      + integer = 1
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+─────────────────────────────────────────────────────────────────────────────
+
+Saved the plan to: equivalence_test_plan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "equivalence_test_plan"

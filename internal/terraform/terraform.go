@@ -2,10 +2,11 @@ package terraform
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
+
+	"github.com/hashicorp/terraform-equivalence-testing/internal/files"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 )
@@ -33,6 +34,16 @@ type Command struct {
 	// This field is ignored if CaptureOutput is false.
 	OutputFileName string `json:"output_file_name"`
 
+	// HasJsonOutput tells the framework the output is going to be in JSON
+	// format.
+	//
+	// This means that `IgnoreFields` section of the test specification can be
+	// applied to the output of this command. It also provides a better diffing
+	// output as JSON is easier to diff and display than raw strings.
+	//
+	// This field is ignored if CaptureOutput is false.
+	HasJsonOutput bool `json:"has_json_output"`
+
 	// StreamsJsonOutput tells the framework the output isn't going to arrive in
 	// pure JSON but as a list of structured JSON statements. In this case the
 	// framework will strip out any `\n` characters, put the output inside a
@@ -43,7 +54,8 @@ type Command struct {
 	// can be handled by the rest of the framework. An example of this is the
 	// output of an apply command: `terraform apply -json`.
 	//
-	// This field is ignored if CaptureOutput is false.
+	// This field is ignored if CaptureOutput is false or if HasJsonOutput is
+	// false.
 	StreamsJsonOutput bool `json:"streams_json_output"`
 }
 
@@ -55,7 +67,7 @@ type Terraform interface {
 	// ExecuteTest executes a series of terraform commands in order and returns the
 	// output of the apply and plan steps, the Terraform state, and any additionally
 	// requested files.
-	ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]interface{}, error)
+	ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]*files.File, error)
 
 	// Version returns the version of the underlying Terraform binary.
 	Version() string
@@ -101,7 +113,7 @@ func (t *terraform) Version() string {
 	return t.version
 }
 
-func (t *terraform) ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]interface{}, error) {
+func (t *terraform) ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]*files.File, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -112,7 +124,7 @@ func (t *terraform) ExecuteTest(directory string, includeFiles []string, command
 	}
 	defer os.Chdir(wd)
 
-	files := map[string]interface{}{}
+	savedFiles := map[string]*files.File{}
 	if len(commands) == 0 {
 		// We weren't given custom commands so let's run the default set of
 		// commands.
@@ -120,16 +132,16 @@ func (t *terraform) ExecuteTest(directory string, includeFiles []string, command
 		if err := t.init(); err != nil {
 			return nil, err
 		}
-		if err := t.plan(); err != nil {
+		if savedFiles["plan"], err = t.plan(); err != nil {
 			return nil, err
 		}
-		if files["apply.json"], err = t.apply(); err != nil {
+		if savedFiles["apply.json"], err = t.apply(); err != nil {
 			return nil, err
 		}
-		if files["state.json"], err = t.showState(); err != nil {
+		if savedFiles["state.json"], err = t.showState(); err != nil {
 			return nil, err
 		}
-		if files["plan.json"], err = t.showPlan(); err != nil {
+		if savedFiles["plan.json"], err = t.showPlan(); err != nil {
 			return nil, err
 		}
 	} else {
@@ -140,27 +152,25 @@ func (t *terraform) ExecuteTest(directory string, includeFiles []string, command
 			}
 
 			if output != nil {
-				files[command.OutputFileName] = output
+				savedFiles[command.OutputFileName] = output
 			}
 		}
 	}
 
 	for _, includeFile := range includeFiles {
-		var data interface{}
 		raw, err := os.ReadFile(includeFile)
 		if err != nil {
 			return nil, fmt.Errorf("could not read additional file (%s): %v", includeFile, err)
 		}
-		if err := json.Unmarshal(raw, &data); err != nil {
+		if savedFiles[includeFile], err = files.NewFile(includeFile, raw); err != nil {
 			return nil, fmt.Errorf("could not unmarshal additional file (%s): %v", includeFile, err)
 		}
-		files[includeFile] = data
 	}
 
-	return files, nil
+	return savedFiles, nil
 }
 
-func (t *terraform) command(command Command) (interface{}, error) {
+func (t *terraform) command(command Command) (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, command.Arguments...), command.Name)
 	if err != nil {
 		return nil, err
@@ -170,10 +180,21 @@ func (t *terraform) command(command Command) (interface{}, error) {
 		return nil, nil
 	}
 
-	if command.StreamsJsonOutput {
-		return capture.ToJson(true)
+	if !command.HasJsonOutput {
+		return files.NewRawFile(capture.ToString()), nil
 	}
-	return capture.ToJson(false)
+
+	var json interface{}
+	if command.StreamsJsonOutput {
+		if json, err = capture.ToJson(true); err != nil {
+			return nil, err
+		}
+	} else {
+		if json, err = capture.ToJson(false); err != nil {
+			return nil, err
+		}
+	}
+	return files.NewJsonFile(json), nil
 }
 
 func (t *terraform) init() error {
@@ -184,36 +205,51 @@ func (t *terraform) init() error {
 	return nil
 }
 
-func (t *terraform) plan() error {
-	_, err := run(exec.Command(t.binary, "plan", "-out=equivalence_test_plan"), "plan")
+func (t *terraform) plan() (*files.File, error) {
+	capture, err := run(exec.Command(t.binary, "plan", "-out=equivalence_test_plan", "-no-color"), "plan")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return files.NewRawFile(capture.ToString()), nil
 }
 
-func (t *terraform) apply() (interface{}, error) {
+func (t *terraform) apply() (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, "apply", "-json", "equivalence_test_plan"), "apply")
 	if err != nil {
 		return nil, err
 	}
-	return capture.ToJson(true)
+
+	json, err := capture.ToJson(true)
+	if err != nil {
+		return nil, err
+	}
+	return files.NewJsonFile(json), nil
 }
 
-func (t *terraform) showPlan() (interface{}, error) {
+func (t *terraform) showPlan() (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, "show", "-json", "equivalence_test_plan"), "show plan")
 	if err != nil {
 		return nil, err
 	}
-	return capture.ToJson(false)
+
+	json, err := capture.ToJson(false)
+	if err != nil {
+		return nil, err
+	}
+	return files.NewJsonFile(json), nil
 }
 
-func (t *terraform) showState() (interface{}, error) {
+func (t *terraform) showState() (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, "show", "-json"), "show state")
 	if err != nil {
 		return nil, err
 	}
-	return capture.ToJson(false)
+
+	json, err := capture.ToJson(false)
+	if err != nil {
+		return nil, err
+	}
+	return files.NewJsonFile(json), nil
 }
 
 func run(cmd *exec.Cmd, command string) (*capture, error) {
