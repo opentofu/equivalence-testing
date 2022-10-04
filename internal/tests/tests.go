@@ -25,9 +25,18 @@ type Test struct {
 	Specification TestSpecification
 }
 
+func contains(test string, filters []string) bool {
+	for _, filter := range filters {
+		if filter == test {
+			return true
+		}
+	}
+	return false
+}
+
 // ReadFrom accepts a directory and returns the set of test cases specified
 // within this directory.
-func ReadFrom(directory string) ([]Test, error) {
+func ReadFrom(directory string, filters ...string) ([]Test, error) {
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		return nil, err
@@ -36,21 +45,23 @@ func ReadFrom(directory string) ([]Test, error) {
 	var tests []Test
 	for _, file := range files {
 		if file.IsDir() {
-			data, err := ioutil.ReadFile(path.Join(directory, file.Name(), "spec.json"))
-			if err != nil {
-				return nil, err
-			}
+			if len(filters) == 0 || contains(file.Name(), filters) {
+				data, err := ioutil.ReadFile(path.Join(directory, file.Name(), "spec.json"))
+				if err != nil {
+					return nil, err
+				}
 
-			var specification TestSpecification
-			if err := json.Unmarshal(data, &specification); err != nil {
-				return nil, err
-			}
+				var specification TestSpecification
+				if err := json.Unmarshal(data, &specification); err != nil {
+					return nil, err
+				}
 
-			tests = append(tests, Test{
-				Name:          file.Name(),
-				Specification: specification,
-				Directory:     directory,
-			})
+				tests = append(tests, Test{
+					Name:          file.Name(),
+					Specification: specification,
+					Directory:     directory,
+				})
+			}
 		}
 	}
 	return tests, nil

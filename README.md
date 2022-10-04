@@ -12,6 +12,7 @@ Terraform configurations.
 
 - [terraform-equivalence-testing](#terraform-equivalence-testing)
   - [Usage](#usage)
+    - [Optional Flags](#optional-flags)
   - [Execution](#execution)
   - [Directory Structure](#directory-structure)
     - [Tests Directory Structure](#tests-directory-structure)
@@ -25,8 +26,8 @@ Terraform configurations.
 
 There are two available commands within the tool:
 
-- `./terraform-equivalence-testing update --goldens=examples/example_golden_files --tests=examples/example_test_cases --binary=terraform`
-- `./terraform-equivalence-testing diff --goldens=examples/example_golden_files --tests=examples/example_test_cases --binary=terraform`
+- `./terraform-equivalence-testing update --goldens=examples/example_golden_files --tests=examples/example_test_cases`
+- `./terraform-equivalence-testing diff --goldens=examples/example_golden_files --tests=examples/example_test_cases`
 
 The first command will iterate through the test cases in 
 `examples/example_test_cases`, run a set of Terraform commands while collecting
@@ -41,6 +42,21 @@ commands.
 
 The above commands, when executed from the root of this repository, should be
 successful using the examples provided in the `examples/` directory.
+
+### Optional Flags
+
+1. `--binary=terraform`
+    - By default, the equivalence tests will look for the first binary named
+      `terraform` within the path. 
+    - This flag can be set to modify which Terraform binary is used to execute 
+      these tests. 
+2. `--filters=simple_resource,complex_resource`
+    - By default, the equivalence tests will execute all the tests within the 
+      specified `--tests` directory.
+    - You can specify a subset of the tests to execute using this flag either by
+      repeating the flag (eg. 
+     `--filters=simple_resource --filters=complex_resource`), or with a comma
+      separated list as in the original example.
 
 ## Execution
 

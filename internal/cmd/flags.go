@@ -18,15 +18,22 @@ type Flags struct {
 
 	// The relative or absolute path to the target Terraform binary.
 	TerraformBinaryPath string
+
+	// If empty, then all tests will be executed. If not empty, only tests
+	// included in this flag will be executed.
+	TestFilters StringList
 }
 
 func ParseFlags(command string, args []string) (*Flags, error) {
 	fs := flag.NewFlagSet(command, flag.ContinueOnError)
 
 	flags := Flags{}
+
 	fs.StringVar(&flags.GoldenFilesDirectory, "goldens", "", "Absolute or relative path to the directory containing the golden files.")
 	fs.StringVar(&flags.TestingFilesDirectory, "tests", "", "Absolute or relative path to the directory containing the tests and specifications.")
 	fs.StringVar(&flags.TerraformBinaryPath, "binary", "terraform", "Absolute or relative path to the target Terraform binary.")
+
+	fs.Var(&flags.TestFilters, "filters", "If specified, only test cases included in this list will be executed.")
 
 	if err := fs.Parse(args); err != nil {
 		return nil, err

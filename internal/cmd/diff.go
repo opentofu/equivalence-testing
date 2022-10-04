@@ -24,7 +24,7 @@ type diffCommand struct {
 
 func (cmd *diffCommand) Help() string {
 	return strings.TrimSpace(`
-Usage: terraform-equivalence-testing diff --goldens=examples/example_golden_files --tests=examples/example_test_cases [--binary=terraform]
+Usage: terraform-equivalence-testing diff --goldens=examples/example_golden_files --tests=examples/example_test_cases [--binary=terraform] [--filters=complex_resource,simple_resource]
 
 Compare and report the diff between a fresh run of the equivalence tests and the golden files.
 
@@ -46,7 +46,7 @@ func (cmd *diffCommand) Run(args []string) int {
 	}
 	cmd.ui.Output(fmt.Sprintf("Finding diffs in equivalence tests using Terraform v%s with command `%s`", tf.Version(), flags.TerraformBinaryPath))
 
-	testCases, err := tests.ReadFrom(flags.TestingFilesDirectory)
+	testCases, err := tests.ReadFrom(flags.TestingFilesDirectory, flags.TestFilters...)
 	if err != nil {
 		cmd.ui.Error(err.Error())
 		return 1
