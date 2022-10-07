@@ -91,6 +91,7 @@ func (cmd *updateCommand) Run(args []string) int {
 	}
 	if failedTests > 0 {
 		cmd.ui.Output(fmt.Sprintf("\t%d test(s) failed to update.", failedTests))
+		return 1
 	}
 
 	return 0

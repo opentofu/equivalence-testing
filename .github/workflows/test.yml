@@ -28,3 +28,28 @@ jobs:
           cache: true
       - run: go mod download
       - run: go test ./...
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: go mod download
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.3.2
+          terraform_wrapper: false
+      - name: Check examples
+        run: |
+          printf "Executing equivalence tests on example directory\n\n"
+          go run main.go update --goldens=examples/example_golden_files --tests=examples/example_test_cases
+          printf "\n\nFinished executing equivalence tests on example directory\n\n"
+          
+          if [[ `git status --porcelain` ]]; then
+            printf "Found modified example test cases with no updated golden files\n"
+            printf 'Please run `go run main.go update --goldens=examples/example_golden_files --tests=examples/example_test_cases` and commit the changes'
+            exit 1
+          fi

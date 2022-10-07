@@ -119,6 +119,7 @@ func (cmd *diffCommand) Run(args []string) int {
 
 	if failedTests > 0 {
 		cmd.ui.Output(fmt.Sprintf("\t%d test(s) failed.", failedTests))
+		return 1
 	}
 
 	return 0
