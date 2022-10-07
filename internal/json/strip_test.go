@@ -282,6 +282,23 @@ func TestStripJson(t *testing.T) {
 				"list.1.two",
 			},
 		},
+		{
+			input: map[string]interface{}{
+				"map": map[string]interface{}{
+					"one": "one",
+					"two": "two",
+				},
+			},
+			expected: map[string]interface{}{
+				"map": map[string]interface{}{
+					"one": "one",
+					"two": "two",
+				},
+			},
+			fields: []string{
+				"other_map.one",
+			},
+		},
 	}
 	for ix, tc := range tcs {
 		t.Run(fmt.Sprintf("%d", ix), func(t *testing.T) {

@@ -94,6 +94,11 @@ func stripMapNode(parts []string, current map[string]interface{}) (map[string]in
 		}
 		return ret, nil
 	default:
+		if _, ok := current[parts[0]]; !ok {
+			// If the JSON object doesn't have this path, just skip it.
+			return current, nil
+		}
+
 		var err error
 		if current[parts[0]], err = strip(parts[1:], current[parts[0]]); err != nil {
 			return nil, err

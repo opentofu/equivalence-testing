@@ -180,7 +180,6 @@
   },
   "prior_state": {
     "format_version": "1.0",
-    "terraform_version": "1.3.0",
     "values": {
       "root_module": {
         "resources": [
