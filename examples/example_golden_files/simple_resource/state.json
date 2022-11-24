@@ -4,13 +4,13 @@
     "root_module": {
       "resources": [
         {
-          "address": "mock_simple_resource.simple_resource",
+          "address": "tfcoremock_simple_resource.simple_resource",
           "mode": "managed",
           "name": "simple_resource",
-          "provider_name": "registry.terraform.io/liamcervante/mock",
+          "provider_name": "registry.terraform.io/hashicorp/tfcoremock",
           "schema_version": 0,
           "sensitive_values": {},
-          "type": "mock_simple_resource",
+          "type": "tfcoremock_simple_resource",
           "values": {
             "bool": null,
             "float": null,

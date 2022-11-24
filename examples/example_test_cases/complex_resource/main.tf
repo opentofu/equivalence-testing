@@ -1,21 +1,21 @@
 terraform {
   required_providers {
-    mock = {
-      source = "liamcervante/mock"
+    tfcoremock = {
+      source = "hashicorp/tfcoremock"
     }
   }
 }
 
-provider "mock" {}
+provider "tfcoremock" {}
 
-data "mock_simple_resource" "simple_resource" {
+data "tfcoremock_simple_resource" "simple_resource" {
   id = "192977d6-b169-4170-a9d4-ee1dcef7c6ea"
 }
 
-resource "mock_complex_resource" "complex_resource" {
+resource "tfcoremock_complex_resource" "complex_resource" {
   id = "d199d8ea-e8f8-4fb0-8276-3567a74d3db8"
 
-  integer = data.mock_simple_resource.simple_resource.integer
+  integer = data.tfcoremock_simple_resource.simple_resource.integer
 
   object = {
     string = "hello"

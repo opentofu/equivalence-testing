@@ -1,5 +1,5 @@
-data.mock_simple_resource.simple_resource: Reading...
-data.mock_simple_resource.simple_resource: Read complete after 0s [id=192977d6-b169-4170-a9d4-ee1dcef7c6ea]
+data.tfcoremock_simple_resource.simple_resource: Reading...
+data.tfcoremock_simple_resource.simple_resource: Read complete after 0s [id=192977d6-b169-4170-a9d4-ee1dcef7c6ea]
 
 Terraform used the selected providers to generate the following execution
 plan. Resource actions are indicated with the following symbols:
@@ -7,8 +7,8 @@ plan. Resource actions are indicated with the following symbols:
 
 Terraform will perform the following actions:
 
-  # mock_complex_resource.complex_resource will be created
-  + resource "mock_complex_resource" "complex_resource" {
+  # tfcoremock_complex_resource.complex_resource will be created
+  + resource "tfcoremock_complex_resource" "complex_resource" {
       + id      = "d199d8ea-e8f8-4fb0-8276-3567a74d3db8"
       + integer = 2
       + list    = [

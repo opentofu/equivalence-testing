@@ -1,23 +1,23 @@
 {
   "configuration": {
     "provider_config": {
-      "mock": {
-        "full_name": "registry.terraform.io/liamcervante/mock",
-        "name": "mock"
+      "tfcoremock": {
+        "full_name": "registry.terraform.io/hashicorp/tfcoremock",
+        "name": "tfcoremock"
       }
     },
     "root_module": {
       "resources": [
         {
-          "address": "mock_complex_resource.complex_resource",
+          "address": "tfcoremock_complex_resource.complex_resource",
           "expressions": {
             "id": {
               "constant_value": "d199d8ea-e8f8-4fb0-8276-3567a74d3db8"
             },
             "integer": {
               "references": [
-                "data.mock_simple_resource.simple_resource.integer",
-                "data.mock_simple_resource.simple_resource"
+                "data.tfcoremock_simple_resource.simple_resource.integer",
+                "data.tfcoremock_simple_resource.simple_resource"
               ]
             },
             "list": {
@@ -51,12 +51,12 @@
           },
           "mode": "managed",
           "name": "complex_resource",
-          "provider_config_key": "mock",
+          "provider_config_key": "tfcoremock",
           "schema_version": 0,
-          "type": "mock_complex_resource"
+          "type": "tfcoremock_complex_resource"
         },
         {
-          "address": "data.mock_simple_resource.simple_resource",
+          "address": "data.tfcoremock_simple_resource.simple_resource",
           "expressions": {
             "id": {
               "constant_value": "192977d6-b169-4170-a9d4-ee1dcef7c6ea"
@@ -64,9 +64,9 @@
           },
           "mode": "data",
           "name": "simple_resource",
-          "provider_config_key": "mock",
+          "provider_config_key": "tfcoremock",
           "schema_version": 0,
-          "type": "mock_simple_resource"
+          "type": "tfcoremock_simple_resource"
         }
       ]
     }
@@ -76,10 +76,10 @@
     "root_module": {
       "resources": [
         {
-          "address": "mock_complex_resource.complex_resource",
+          "address": "tfcoremock_complex_resource.complex_resource",
           "mode": "managed",
           "name": "complex_resource",
-          "provider_name": "registry.terraform.io/liamcervante/mock",
+          "provider_name": "registry.terraform.io/hashicorp/tfcoremock",
           "schema_version": 0,
           "sensitive_values": {
             "list": [
@@ -99,7 +99,7 @@
             "object": {},
             "set_block": []
           },
-          "type": "mock_complex_resource",
+          "type": "tfcoremock_complex_resource",
           "values": {
             "bool": null,
             "float": null,
@@ -184,13 +184,13 @@
       "root_module": {
         "resources": [
           {
-            "address": "data.mock_simple_resource.simple_resource",
+            "address": "data.tfcoremock_simple_resource.simple_resource",
             "mode": "data",
             "name": "simple_resource",
-            "provider_name": "registry.terraform.io/liamcervante/mock",
+            "provider_name": "registry.terraform.io/hashicorp/tfcoremock",
             "schema_version": 0,
             "sensitive_values": {},
-            "type": "mock_simple_resource",
+            "type": "tfcoremock_simple_resource",
             "values": {
               "bool": null,
               "float": null,
@@ -209,12 +209,12 @@
       "attribute": [
         "integer"
       ],
-      "resource": "data.mock_simple_resource.simple_resource"
+      "resource": "data.tfcoremock_simple_resource.simple_resource"
     }
   ],
   "resource_changes": [
     {
-      "address": "mock_complex_resource.complex_resource",
+      "address": "tfcoremock_complex_resource.complex_resource",
       "change": {
         "actions": [
           "create"
@@ -317,8 +317,8 @@
       },
       "mode": "managed",
       "name": "complex_resource",
-      "provider_name": "registry.terraform.io/liamcervante/mock",
-      "type": "mock_complex_resource"
+      "provider_name": "registry.terraform.io/hashicorp/tfcoremock",
+      "type": "tfcoremock_complex_resource"
     }
   ]
 }

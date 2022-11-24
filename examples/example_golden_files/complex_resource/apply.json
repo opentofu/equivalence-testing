@@ -1,43 +1,43 @@
 [
   {
     "@level": "info",
-    "@message": "mock_complex_resource.complex_resource: Plan to create",
+    "@message": "tfcoremock_complex_resource.complex_resource: Plan to create",
     "@module": "terraform.ui",
     "change": {
       "action": "create",
       "resource": {
-        "addr": "mock_complex_resource.complex_resource",
-        "implied_provider": "mock",
+        "addr": "tfcoremock_complex_resource.complex_resource",
+        "implied_provider": "tfcoremock",
         "module": "",
-        "resource": "mock_complex_resource.complex_resource",
+        "resource": "tfcoremock_complex_resource.complex_resource",
         "resource_key": null,
         "resource_name": "complex_resource",
-        "resource_type": "mock_complex_resource"
+        "resource_type": "tfcoremock_complex_resource"
       }
     },
     "type": "planned_change"
   },
   {
     "@level": "info",
-    "@message": "mock_complex_resource.complex_resource: Creating...",
+    "@message": "tfcoremock_complex_resource.complex_resource: Creating...",
     "@module": "terraform.ui",
     "hook": {
       "action": "create",
       "resource": {
-        "addr": "mock_complex_resource.complex_resource",
-        "implied_provider": "mock",
+        "addr": "tfcoremock_complex_resource.complex_resource",
+        "implied_provider": "tfcoremock",
         "module": "",
-        "resource": "mock_complex_resource.complex_resource",
+        "resource": "tfcoremock_complex_resource.complex_resource",
         "resource_key": null,
         "resource_name": "complex_resource",
-        "resource_type": "mock_complex_resource"
+        "resource_type": "tfcoremock_complex_resource"
       }
     },
     "type": "apply_start"
   },
   {
     "@level": "info",
-    "@message": "mock_complex_resource.complex_resource: Creation complete after 0s [id=d199d8ea-e8f8-4fb0-8276-3567a74d3db8]",
+    "@message": "tfcoremock_complex_resource.complex_resource: Creation complete after 0s [id=d199d8ea-e8f8-4fb0-8276-3567a74d3db8]",
     "@module": "terraform.ui",
     "hook": {
       "action": "create",
@@ -45,13 +45,13 @@
       "id_key": "id",
       "id_value": "d199d8ea-e8f8-4fb0-8276-3567a74d3db8",
       "resource": {
-        "addr": "mock_complex_resource.complex_resource",
-        "implied_provider": "mock",
+        "addr": "tfcoremock_complex_resource.complex_resource",
+        "implied_provider": "tfcoremock",
         "module": "",
-        "resource": "mock_complex_resource.complex_resource",
+        "resource": "tfcoremock_complex_resource.complex_resource",
         "resource_key": null,
         "resource_name": "complex_resource",
-        "resource_type": "mock_complex_resource"
+        "resource_type": "tfcoremock_complex_resource"
       }
     },
     "type": "apply_complete"

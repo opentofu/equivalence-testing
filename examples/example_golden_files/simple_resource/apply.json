@@ -1,43 +1,43 @@
 [
   {
     "@level": "info",
-    "@message": "mock_simple_resource.simple_resource: Plan to create",
+    "@message": "tfcoremock_simple_resource.simple_resource: Plan to create",
     "@module": "terraform.ui",
     "change": {
       "action": "create",
       "resource": {
-        "addr": "mock_simple_resource.simple_resource",
-        "implied_provider": "mock",
+        "addr": "tfcoremock_simple_resource.simple_resource",
+        "implied_provider": "tfcoremock",
         "module": "",
-        "resource": "mock_simple_resource.simple_resource",
+        "resource": "tfcoremock_simple_resource.simple_resource",
         "resource_key": null,
         "resource_name": "simple_resource",
-        "resource_type": "mock_simple_resource"
+        "resource_type": "tfcoremock_simple_resource"
       }
     },
     "type": "planned_change"
   },
   {
     "@level": "info",
-    "@message": "mock_simple_resource.simple_resource: Creating...",
+    "@message": "tfcoremock_simple_resource.simple_resource: Creating...",
     "@module": "terraform.ui",
     "hook": {
       "action": "create",
       "resource": {
-        "addr": "mock_simple_resource.simple_resource",
-        "implied_provider": "mock",
+        "addr": "tfcoremock_simple_resource.simple_resource",
+        "implied_provider": "tfcoremock",
         "module": "",
-        "resource": "mock_simple_resource.simple_resource",
+        "resource": "tfcoremock_simple_resource.simple_resource",
         "resource_key": null,
         "resource_name": "simple_resource",
-        "resource_type": "mock_simple_resource"
+        "resource_type": "tfcoremock_simple_resource"
       }
     },
     "type": "apply_start"
   },
   {
     "@level": "info",
-    "@message": "mock_simple_resource.simple_resource: Creation complete after 0s [id=192977d6-b169-4170-a9d4-ee1dcef7c6ea]",
+    "@message": "tfcoremock_simple_resource.simple_resource: Creation complete after 0s [id=192977d6-b169-4170-a9d4-ee1dcef7c6ea]",
     "@module": "terraform.ui",
     "hook": {
       "action": "create",
@@ -45,13 +45,13 @@
       "id_key": "id",
       "id_value": "192977d6-b169-4170-a9d4-ee1dcef7c6ea",
       "resource": {
-        "addr": "mock_simple_resource.simple_resource",
-        "implied_provider": "mock",
+        "addr": "tfcoremock_simple_resource.simple_resource",
+        "implied_provider": "tfcoremock",
         "module": "",
-        "resource": "mock_simple_resource.simple_resource",
+        "resource": "tfcoremock_simple_resource.simple_resource",
         "resource_key": null,
         "resource_name": "simple_resource",
-        "resource_type": "mock_simple_resource"
+        "resource_type": "tfcoremock_simple_resource"
       }
     },
     "type": "apply_complete"

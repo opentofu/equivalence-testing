@@ -4,13 +4,13 @@
     "root_module": {
       "resources": [
         {
-          "address": "data.mock_simple_resource.simple_resource",
+          "address": "data.tfcoremock_simple_resource.simple_resource",
           "mode": "data",
           "name": "simple_resource",
-          "provider_name": "registry.terraform.io/liamcervante/mock",
+          "provider_name": "registry.terraform.io/hashicorp/tfcoremock",
           "schema_version": 0,
           "sensitive_values": {},
-          "type": "mock_simple_resource",
+          "type": "tfcoremock_simple_resource",
           "values": {
             "bool": null,
             "float": null,
@@ -21,13 +21,13 @@
           }
         },
         {
-          "address": "mock_complex_resource.complex_resource",
+          "address": "tfcoremock_complex_resource.complex_resource",
           "depends_on": [
-            "data.mock_simple_resource.simple_resource"
+            "data.tfcoremock_simple_resource.simple_resource"
           ],
           "mode": "managed",
           "name": "complex_resource",
-          "provider_name": "registry.terraform.io/liamcervante/mock",
+          "provider_name": "registry.terraform.io/hashicorp/tfcoremock",
           "schema_version": 0,
           "sensitive_values": {
             "list": [
@@ -47,7 +47,7 @@
             "object": {},
             "set_block": []
           },
-          "type": "mock_complex_resource",
+          "type": "tfcoremock_complex_resource",
           "values": {
             "bool": null,
             "float": null,
