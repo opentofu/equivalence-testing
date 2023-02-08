@@ -141,10 +141,13 @@ func (t *terraform) ExecuteTest(directory string, includeFiles []string, command
 		if savedFiles["apply.json"], err = t.apply(); err != nil {
 			return nil, err
 		}
-		if savedFiles["state.json"], err = t.showState(); err != nil {
+		if savedFiles["state"], err = t.showState(); err != nil {
 			return nil, err
 		}
-		if savedFiles["plan.json"], err = t.showPlan(); err != nil {
+		if savedFiles["state.json"], err = t.showJsonState(); err != nil {
+			return nil, err
+		}
+		if savedFiles["plan.json"], err = t.showJsonPlan(); err != nil {
 			return nil, err
 		}
 	} else {
@@ -229,8 +232,16 @@ func (t *terraform) apply() (*files.File, error) {
 	return files.NewJsonFile(json), nil
 }
 
-func (t *terraform) showPlan() (*files.File, error) {
-	capture, err := run(exec.Command(t.binary, "show", "-json", "equivalence_test_plan"), "show plan")
+func (t *terraform) showState() (*files.File, error) {
+	capture, err := run(exec.Command(t.binary, "show", "-no-color"), "show state")
+	if err != nil {
+		return nil, err
+	}
+	return files.NewRawFile(capture.ToString()), nil
+}
+
+func (t *terraform) showJsonPlan() (*files.File, error) {
+	capture, err := run(exec.Command(t.binary, "show", "-json", "equivalence_test_plan"), "show json plan")
 	if err != nil {
 		return nil, err
 	}
@@ -242,8 +253,8 @@ func (t *terraform) showPlan() (*files.File, error) {
 	return files.NewJsonFile(json), nil
 }
 
-func (t *terraform) showState() (*files.File, error) {
-	capture, err := run(exec.Command(t.binary, "show", "-json"), "show state")
+func (t *terraform) showJsonState() (*files.File, error) {
+	capture, err := run(exec.Command(t.binary, "show", "-json"), "show json state")
 	if err != nil {
 		return nil, err
 	}

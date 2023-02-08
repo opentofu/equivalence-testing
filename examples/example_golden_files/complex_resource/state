@@ -1,0 +1,25 @@
+# data.tfcoremock_simple_resource.simple_resource:
+data "tfcoremock_simple_resource" "simple_resource" {
+    id      = "192977d6-b169-4170-a9d4-ee1dcef7c6ea"
+    integer = 2
+}
+
+# tfcoremock_complex_resource.complex_resource:
+resource "tfcoremock_complex_resource" "complex_resource" {
+    id      = "d199d8ea-e8f8-4fb0-8276-3567a74d3db8"
+    integer = 2
+    list    = [
+        # (2 unchanged elements hidden)
+    ]
+    object  = {
+        bool   = true
+        string = "hello"
+    }
+
+    list_block {
+        string = "two.one"
+    }
+    list_block {
+        string = "two.two"
+    }
+}

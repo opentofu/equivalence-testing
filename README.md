@@ -65,8 +65,9 @@ Each test case executes the following Terraform commands in order:
 1. `terraform init`
 2. `terraform plan -out=equivalence_test_plan`
 3. `terraform apply -json equivalence_test_plan`
-4. `terraform show -json`
-5. `terraform show -json equivalence_test_plan`
+4. `terraform show`
+5. `terraform show -json`
+6. `terraform show -json equivalence_test_plan`
 
 Consult the [Test Specification Format](#test-specification-format) section for
 a run down on how to customise these commands using the `Commands` 
@@ -249,6 +250,13 @@ the custom `commands` entry in the test specification.
       "output_file_name": "apply.json",
       "has_json_output": true,
       "streams_json_output": true
+    },
+    {
+      "name": "state",
+      "arguments": ["show", "-no-color"],
+      "capture_output": true,
+      "output_file_name": "state",
+      "has_json_output": false
     },
     {
       "name": "show_state",
