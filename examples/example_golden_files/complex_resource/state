@@ -9,7 +9,12 @@ resource "tfcoremock_complex_resource" "complex_resource" {
     id      = "d199d8ea-e8f8-4fb0-8276-3567a74d3db8"
     integer = 2
     list    = [
-        # (2 unchanged elements hidden)
+        {
+            string = "one.one"
+        },
+        {
+            string = "one.two"
+        },
     ]
     object  = {
         bool   = true

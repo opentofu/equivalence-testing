@@ -28,12 +28,6 @@
       "list": [
         {
           "object": {
-            "list_block": {
-              "list": []
-            },
-            "set_block": {
-              "set": []
-            },
             "string": {
               "string": "two.one"
             }
@@ -41,12 +35,6 @@
         },
         {
           "object": {
-            "list_block": {
-              "list": []
-            },
-            "set_block": {
-              "set": []
-            },
             "string": {
               "string": "two.two"
             }
@@ -63,9 +51,6 @@
           "string": "hello"
         }
       }
-    },
-    "set_block": {
-      "set": []
     }
   }
 }
