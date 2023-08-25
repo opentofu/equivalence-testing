@@ -9,7 +9,7 @@ import (
 
 	"github.com/mitchellh/cli"
 
-	"github.com/hashicorp/terraform-equivalence-testing/internal/cmd"
+	"github.com/opentffoundation/equivalence-testing/internal/cmd"
 )
 
 var (
@@ -23,14 +23,14 @@ func main() {
 		ErrorWriter: os.Stderr,
 	}
 
-	command := cli.NewCLI("terraform-equivalence-testing", version)
+	command := cli.NewCLI("equivalence-testing", version)
 
 	command.Args = os.Args[1:]
 	command.Commands = map[string]cli.CommandFactory{
 		"diff":   cmd.DiffCommandFactory(&ui),
 		"update": cmd.UpdateCommandFactory(&ui),
 	}
-	command.HelpFunc = cli.BasicHelpFunc("terraform-equivalence-testing")
+	command.HelpFunc = cli.BasicHelpFunc("equivalence-testing")
 	command.HelpWriter = os.Stdout
 	command.ErrorWriter = os.Stderr
 

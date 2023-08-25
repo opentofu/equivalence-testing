@@ -9,8 +9,8 @@ import (
 
 	"github.com/mitchellh/cli"
 
-	"github.com/hashicorp/terraform-equivalence-testing/internal/terraform"
-	"github.com/hashicorp/terraform-equivalence-testing/internal/tests"
+	"github.com/opentffoundation/equivalence-testing/internal/binary"
+	"github.com/opentffoundation/equivalence-testing/internal/tests"
 )
 
 func UpdateCommandFactory(ui cli.Ui) cli.CommandFactory {
@@ -27,7 +27,7 @@ type updateCommand struct {
 
 func (cmd *updateCommand) Help() string {
 	return strings.TrimSpace(`
-Usage: terraform-equivalence-testing update --goldens=examples/example_golden_files --tests=examples/example_test_cases [--binary=terraform] [--filters=complex_resource,simple_resource]
+Usage: equivalence-testing update --goldens=examples/example_golden_files --tests=examples/example_test_cases [--binary=opentf] [--filters=complex_resource,simple_resource]
 
 Update the equivalence test golden files.
 
@@ -43,12 +43,12 @@ func (cmd *updateCommand) Run(args []string) int {
 		return 1
 	}
 
-	tf, err := terraform.New(flags.TerraformBinaryPath)
+	tf, err := binary.New(flags.BinaryPath)
 	if err != nil {
 		cmd.ui.Error(err.Error())
 		return 1
 	}
-	cmd.ui.Output(fmt.Sprintf("Updating golden files using Terraform v%s with command `%s`", tf.Version(), flags.TerraformBinaryPath))
+	cmd.ui.Output(fmt.Sprintf("Updating golden files using the binary v%s with command `%s`", tf.Version(), flags.BinaryPath))
 
 	testCases, err := tests.ReadFrom(flags.TestingFilesDirectory, flags.TestFilters...)
 	if err != nil {
@@ -66,7 +66,7 @@ func (cmd *updateCommand) Run(args []string) int {
 		output, err := test.RunWith(tf)
 		if err != nil {
 			failedTests++
-			if tfErr, ok := err.(terraform.Error); ok {
+			if tfErr, ok := err.(binary.Error); ok {
 				cmd.ui.Output(fmt.Sprintf("[%s]: %s", test.Name, tfErr))
 				continue
 			}
@@ -86,7 +86,7 @@ func (cmd *updateCommand) Run(args []string) int {
 		cmd.ui.Output(fmt.Sprintf("[%s]: complete\n", test.Name))
 	}
 
-	cmd.ui.Output(fmt.Sprintf("Equivalence testing complete."))
+	cmd.ui.Output("Equivalence testing complete.")
 	cmd.ui.Output(fmt.Sprintf("\tAttempted %d test(s).", len(testCases)))
 
 	if successfulTests > 0 {

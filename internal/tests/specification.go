@@ -3,7 +3,7 @@
 
 package tests
 
-import "github.com/hashicorp/terraform-equivalence-testing/internal/terraform"
+import "github.com/opentffoundation/equivalence-testing/internal/binary"
 
 // TestSpecification is a struct that provides the specification for a given
 // test case.
@@ -22,5 +22,5 @@ type TestSpecification struct {
 	// [init, plan, apply, show, show plan]. Otherwise, these are the set of
 	// commands that should be executed by the equivalence test framework for
 	// this test case.
-	Commands []terraform.Command `json:"commands"`
+	Commands []binary.Command `json:"commands"`
 }

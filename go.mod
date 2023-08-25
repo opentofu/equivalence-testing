@@ -1,4 +1,4 @@
-module github.com/hashicorp/terraform-equivalence-testing
+module github.com/opentffoundation/equivalence-testing
 
 go 1.18
 
