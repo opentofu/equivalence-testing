@@ -12,8 +12,8 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/hashicorp/terraform-equivalence-testing/internal/files"
-	strip "github.com/hashicorp/terraform-equivalence-testing/internal/json"
+	"github.com/opentffoundation/equivalence-testing/internal/files"
+	strip "github.com/opentffoundation/equivalence-testing/internal/json"
 )
 
 const (

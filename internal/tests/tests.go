@@ -5,13 +5,12 @@ package tests
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 
-	"github.com/hashicorp/terraform-equivalence-testing/internal/files"
-	"github.com/hashicorp/terraform-equivalence-testing/internal/terraform"
+	"github.com/opentffoundation/equivalence-testing/internal/binary"
+	"github.com/opentffoundation/equivalence-testing/internal/files"
 )
 
 // Test defines a single equivalence test within our framework.
@@ -40,7 +39,7 @@ func contains(test string, filters []string) bool {
 // ReadFrom accepts a directory and returns the set of test cases specified
 // within this directory.
 func ReadFrom(directory string, filters ...string) ([]Test, error) {
-	files, err := ioutil.ReadDir(directory)
+	files, err := os.ReadDir(directory)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +48,7 @@ func ReadFrom(directory string, filters ...string) ([]Test, error) {
 	for _, file := range files {
 		if file.IsDir() {
 			if len(filters) == 0 || contains(file.Name(), filters) {
-				data, err := ioutil.ReadFile(path.Join(directory, file.Name(), "spec.json"))
+				data, err := os.ReadFile(path.Join(directory, file.Name(), "spec.json"))
 				if err != nil {
 					return nil, err
 				}
@@ -70,13 +69,13 @@ func ReadFrom(directory string, filters ...string) ([]Test, error) {
 	return tests, nil
 }
 
-// RunWith executes the specified test using the Terraform binary specified by
-// the terraform.Terraform argument.
+// RunWith executes the specified test using the binary specified by
+// the binary.Binary argument.
 //
 // This function will return a TestOutput struct, which contains the file names
 // of the outputs that we want to compare. These files are already read in and
 // parsed in JSON objects.
-func (test Test) RunWith(tf terraform.Terraform) (TestOutput, error) {
+func (test Test) RunWith(tf binary.Binary) (TestOutput, error) {
 	tmp, err := os.MkdirTemp(test.Directory, test.Name)
 	if err != nil {
 		return TestOutput{}, err

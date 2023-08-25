@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package terraform
+package binary
 
 import (
 	"context"
@@ -9,13 +9,13 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/hashicorp/terraform-equivalence-testing/internal/files"
+	"github.com/opentffoundation/equivalence-testing/internal/files"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 )
 
 // Command is a struct that instructs the framework how to execute a custom
-// command. It covers the arguments that should be passed to Terraform, and
+// command. It covers the arguments that should be passed to the binary, and
 // instructs whether the output should be captured and how it should be
 // captured.
 type Command struct {
@@ -23,7 +23,7 @@ type Command struct {
 	// reporting which command might have failed.
 	Name string `json:"name"`
 
-	// A list of Arguments to pass to the Terraform binary, eg. `init`, `plan`,
+	// A list of Arguments to pass to the binary, eg. `init`, `plan`,
 	// `show -json`, etc.
 	Arguments []string `json:"arguments"`
 
@@ -55,43 +55,43 @@ type Command struct {
 	//
 	// This command basically turns the structured output into a JSON list that
 	// can be handled by the rest of the framework. An example of this is the
-	// output of an apply command: `terraform apply -json`.
+	// output of an apply command: `$binary apply -json`.
 	//
 	// This field is ignored if CaptureOutput is false or if HasJsonOutput is
 	// false.
 	StreamsJsonOutput bool `json:"streams_json_output"`
 }
 
-// Terraform is an interface that can execute a single equivalence test within a
+// Binary is an interface that can execute a single equivalence test within a
 // directory using the ExecuteTest method.
 //
 // We hold this in an interface, so we can mock it for testing purposes.
-type Terraform interface {
-	// ExecuteTest executes a series of terraform commands in order and returns the
-	// output of the apply and plan steps, the Terraform state, and any additionally
+type Binary interface {
+	// ExecuteTest executes a series of commands in order and returns the
+	// output of the apply and plan steps, the state, and any additionally
 	// requested files.
 	ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]*files.File, error)
 
-	// Version returns the version of the underlying Terraform binary.
+	// Version returns the version of the underlying binary.
 	Version() string
 }
 
-// New returns a Terraform compatible struct that executes the tests using the
-// Terraform binary provided in the argument.
-func New(binary string) (Terraform, error) {
+// New returns a Binary compatible struct that executes the tests using the
+// selected binary provided in the argument.
+func New(binaryName string) (Binary, error) {
 
-	// First, sanity check binary actually points to a Terraform binary file.
+	// First, sanity check binary actually points to a binary file.
 	//
 	// We do this by fetching the version using tfexec. tfexec tries to be
 	// clever and look up cached provider versions as well, but we're not
 	// interested in this, so we just set the working directory to be the
-	// current directory and tfexec just won't find any terraform or provider
+	// current directory and tfexec just won't find any binary or provider
 	// files.
 	//
 	// Note, ideally we could actually just tfexec for everything. tfexec
 	// doesn't (yet) support returning JSON files from the apply command so for
 	// now we do the rest ourselves. Something to revisit in the future.
-	tf, err := tfexec.NewTerraform(".", binary)
+	tf, err := tfexec.NewTerraform(".", binaryName)
 	if err != nil {
 		return nil, err
 	}
@@ -101,22 +101,22 @@ func New(binary string) (Terraform, error) {
 		return nil, err
 	}
 
-	return &terraform{
-		binary:  binary,
+	return &binary{
+		binary:  binaryName,
 		version: version.String(),
 	}, nil
 }
 
-type terraform struct {
+type binary struct {
 	binary  string
 	version string
 }
 
-func (t *terraform) Version() string {
+func (t *binary) Version() string {
 	return t.version
 }
 
-func (t *terraform) ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]*files.File, error) {
+func (t *binary) ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]*files.File, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -176,7 +176,7 @@ func (t *terraform) ExecuteTest(directory string, includeFiles []string, command
 	return savedFiles, nil
 }
 
-func (t *terraform) command(command Command) (*files.File, error) {
+func (t *binary) command(command Command) (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, command.Arguments...), command.Name)
 	if err != nil {
 		return nil, err
@@ -203,7 +203,7 @@ func (t *terraform) command(command Command) (*files.File, error) {
 	return files.NewJsonFile(json), nil
 }
 
-func (t *terraform) init() error {
+func (t *binary) init() error {
 	_, err := run(exec.Command(t.binary, "init"), "init")
 	if err != nil {
 		return err
@@ -211,7 +211,7 @@ func (t *terraform) init() error {
 	return nil
 }
 
-func (t *terraform) plan() (*files.File, error) {
+func (t *binary) plan() (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, "plan", "-out=equivalence_test_plan", "-no-color"), "plan")
 	if err != nil {
 		return nil, err
@@ -219,7 +219,7 @@ func (t *terraform) plan() (*files.File, error) {
 	return files.NewRawFile(capture.ToString()), nil
 }
 
-func (t *terraform) apply() (*files.File, error) {
+func (t *binary) apply() (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, "apply", "-json", "equivalence_test_plan"), "apply")
 	if err != nil {
 		return nil, err
@@ -232,7 +232,7 @@ func (t *terraform) apply() (*files.File, error) {
 	return files.NewJsonFile(json), nil
 }
 
-func (t *terraform) showState() (*files.File, error) {
+func (t *binary) showState() (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, "show", "-no-color"), "show state")
 	if err != nil {
 		return nil, err
@@ -240,7 +240,7 @@ func (t *terraform) showState() (*files.File, error) {
 	return files.NewRawFile(capture.ToString()), nil
 }
 
-func (t *terraform) showJsonPlan() (*files.File, error) {
+func (t *binary) showJsonPlan() (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, "show", "-json", "equivalence_test_plan"), "show json plan")
 	if err != nil {
 		return nil, err
@@ -253,7 +253,7 @@ func (t *terraform) showJsonPlan() (*files.File, error) {
 	return files.NewJsonFile(json), nil
 }
 
-func (t *terraform) showJsonState() (*files.File, error) {
+func (t *binary) showJsonState() (*files.File, error) {
 	capture, err := run(exec.Command(t.binary, "show", "-json"), "show json state")
 	if err != nil {
 		return nil, err
@@ -270,9 +270,9 @@ func run(cmd *exec.Cmd, command string) (*capture, error) {
 	capture := Capture(cmd)
 	if err := cmd.Run(); err != nil {
 		return capture, Error{
-			Command:   command,
-			Go:        err,
-			Terraform: capture.ToError(),
+			Command: command,
+			Go:      err,
+			Binary:  capture.ToError(),
 		}
 	}
 	return capture, nil
