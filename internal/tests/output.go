@@ -27,11 +27,13 @@ var (
 	defaultFields = map[string][]string{
 		"apply.json": {
 			"0",
-			"*.@timestamp",
+			"*.@timestamp", // Timestamps are always different, avoiding flakes.
+			"*.@module",    // OpenTF will have a different value here.
 		},
 		"plan.json": {
 			"terraform_version",
 			"prior_state.terraform_version",
+			"timestamp", // Timestamps are always different, avoiding flakes.
 		},
 		"state.json": {
 			"terraform_version",
