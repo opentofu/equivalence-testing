@@ -57,9 +57,7 @@ func (output TestOutput) Files() (map[string]*files.File, error) {
 	for name, file := range output.files {
 		contents, ok := file.Json()
 		if !ok {
-			// We only strip data out of JSON files, so skip this because it is
-			// not a JSON file.
-			ret[name] = file
+			ret[name] = file.WithRewrites(output.Test.Specification.Rewrites[name])
 			continue
 		}
 

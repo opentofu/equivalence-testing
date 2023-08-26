@@ -1,0 +1,11 @@
+{
+  "plan": {
+    "Terraform": "OpenTF",
+    "terraform": "opentf",
+    // This rewrite is necessary because the word wrap is different - the
+    // character count differs between "Terraform" and "OpenTF" so the lines
+    // are wrapped slightly differently. In fact, OpenTF's version is slightly
+    // more pleasing to the eye.
+    "execution\nplan. Resource": "execution plan.\nResource"
+  }
+}

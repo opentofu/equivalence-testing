@@ -29,30 +29,34 @@ jobs:
       - run: go mod download
       - run: go test ./...
 
-  # examples:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
-  #     - uses: actions/setup-go@4d34df0c2316fe8122ab82dc22947d607c0c91f9 # v4.0.0
-  #       with:
-  #         go-version-file: 'go.mod'
-  #         cache: true
-  #     - run: go mod download
-  #     - uses: hashicorp/setup-terraform@v2
-  #       with:
-  #         terraform_version: 1.5.6
-  #         terraform_wrapper: false
-  #     - name: Check examples
-  #       run: |
-  #         printf "Executing equivalence tests on example directory\n\n"
-  #         go run main.go update --goldens=examples/example_golden_files --tests=examples/example_test_cases
-  #         printf "\n\nFinished executing equivalence tests on example directory\n\n"
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      - uses: actions/setup-go@4d34df0c2316fe8122ab82dc22947d607c0c91f9 # v4.0.0
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: go mod download
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.6
+          terraform_wrapper: false
+      - name: Check examples
+        run: |
+          printf "Executing equivalence tests on example directory\n\n"
+          go run main.go update \
+            --goldens=examples/example_golden_files \
+            --tests=examples/example_test_cases \
+            --binary $(which terraform) \
+            --rewrites=examples/rewrites.jsonc
+          printf "\n\nFinished executing equivalence tests on example directory\n\n"
           
-  #         if [[ `git status --porcelain` ]]; then
-  #           printf "Found modified example test cases with no updated golden files\n"
-  #           printf 'Please run `go run main.go update --goldens=examples/example_golden_files --tests=examples/example_test_cases` and commit the changes\n'
+          if [[ `git status --porcelain` ]]; then
+            printf "Found modified example test cases with no updated golden files\n"
+            printf 'Please run `go run main.go update --goldens=examples/example_golden_files --tests=examples/example_test_cases` and commit the changes\n'
 
-  #           git diff
+            git diff
 
-  #           exit 1
-  #         fi
+            exit 1
+          fi

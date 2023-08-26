@@ -4,11 +4,12 @@
 package tests
 
 import (
-	"encoding/json"
+	"bytes"
 	"os"
 	"path"
 	"path/filepath"
 
+	"github.com/komkom/jsonc/jsonc"
 	"github.com/opentffoundation/equivalence-testing/internal/binary"
 	"github.com/opentffoundation/equivalence-testing/internal/files"
 )
@@ -38,7 +39,7 @@ func contains(test string, filters []string) bool {
 
 // ReadFrom accepts a directory and returns the set of test cases specified
 // within this directory.
-func ReadFrom(directory string, filters ...string) ([]Test, error) {
+func ReadFrom(directory string, globalRewrites map[string]map[string]string, filters ...string) ([]Test, error) {
 	files, err := os.ReadDir(directory)
 	if err != nil {
 		return nil, err
@@ -54,9 +55,17 @@ func ReadFrom(directory string, filters ...string) ([]Test, error) {
 				}
 
 				var specification TestSpecification
-				if err := json.Unmarshal(data, &specification); err != nil {
+
+				decoder, err := jsonc.NewDecoder(bytes.NewReader(data))
+				if err != nil {
 					return nil, err
 				}
+
+				if err := decoder.Decode(&specification); err != nil {
+					return nil, err
+				}
+
+				specification.AddRewrites(globalRewrites)
 
 				tests = append(tests, Test{
 					Name:          file.Name(),
@@ -88,6 +97,7 @@ func (test Test) RunWith(tf binary.Binary) (TestOutput, error) {
 	}
 
 	files, err := tf.ExecuteTest(tmp, test.Specification.IncludeFiles, test.Specification.Commands...)
+
 	if err != nil {
 		return TestOutput{}, err
 	}

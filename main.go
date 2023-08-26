@@ -27,7 +27,6 @@ func main() {
 
 	command.Args = os.Args[1:]
 	command.Commands = map[string]cli.CommandFactory{
-		"diff":   cmd.DiffCommandFactory(&ui),
 		"update": cmd.UpdateCommandFactory(&ui),
 	}
 	command.HelpFunc = cli.BasicHelpFunc("equivalence-testing")

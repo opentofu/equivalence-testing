@@ -4,9 +4,12 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/komkom/jsonc/jsonc"
 	"github.com/mitchellh/cli"
 
 	"github.com/opentffoundation/equivalence-testing/internal/binary"
@@ -50,7 +53,29 @@ func (cmd *updateCommand) Run(args []string) int {
 	}
 	cmd.ui.Output(fmt.Sprintf("Updating golden files using the binary v%s with command `%s`", tf.Version(), flags.BinaryPath))
 
-	testCases, err := tests.ReadFrom(flags.TestingFilesDirectory, flags.TestFilters...)
+	globalRewrites := make(map[string]map[string]string)
+
+	if len(flags.RewritesPath) > 0 {
+		data, err := os.ReadFile(flags.RewritesPath)
+		if err != nil {
+			cmd.ui.Error(fmt.Sprintf("Could not read global rewrites path: %v", err))
+			return 1
+		}
+
+		decoder, err := jsonc.NewDecoder(bytes.NewReader(data))
+		if err != nil {
+			cmd.ui.Error(fmt.Sprintf("Could not parse global rewrites path: %v", err))
+			return 1
+		}
+
+		if err := decoder.Decode(&globalRewrites); err != nil {
+			cmd.ui.Error(fmt.Sprintf("Could not parse global rewrites path: %v", err))
+			return 1
+		}
+
+	}
+
+	testCases, err := tests.ReadFrom(flags.TestingFilesDirectory, globalRewrites, flags.TestFilters...)
 	if err != nil {
 		cmd.ui.Error(err.Error())
 		return 1

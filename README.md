@@ -17,19 +17,18 @@ The framework uses a set of golden files to track outputs and verify changes acr
     - [IncludeFiles](#includefiles)
     - [IgnoreFields](#ignorefields)
     - [Commands](#commands)
+      - [Examples](#examples)
+    - [Rewrites](#rewrites)
 
 ## Usage
 
-There are two available commands within the tool:
+There is one available command within the tool:
 
 - `./equivalence-testing update --goldens=examples/example_golden_files --tests=examples/example_test_cases`
-- `./equivalence-testing diff --goldens=examples/example_golden_files --tests=examples/example_test_cases`
 
-The first command will iterate through the test cases in  `examples/example_test_cases`, run a set of commands while collecting the output for these commands, and then write the outputs into a directory within `examples/example_golden_files`. This command will overwrite  any existing golden files that already exist.
+The command will iterate through the test cases in  `examples/example_test_cases`, run a set of commands while collecting the output for these commands, and then write the outputs into a directory within `examples/example_golden_files`. This command will overwrite  any existing golden files that already exist.
 
-The second command does the same as the first command, except instead of  updating or overwriting the golden files it simply reports on any differences found between the existing golden files and the outputs of the commands.
-
-The above commands, when executed from the root of this repository, should be
+The above command, when executed from the root of this repository, should be
 successful using the examples provided in the `examples/` directory.
 
 ### Optional Flags
@@ -40,6 +39,8 @@ successful using the examples provided in the `examples/` directory.
 2. `--filters=simple_resource,complex_resource`
     - By default, the equivalence tests will execute all the tests within the  specified `--tests` directory.
     - You can specify a subset of the tests to execute using this flag either by repeating the flag (eg. `--filters=simple_resource --filters=complex_resource`), or with a comma separated list as in the original example.
+3. `--rewrites=filename.jsonc`
+    - If provided, all specified equivalence tests will be run with the specified [rewrites](#rewrites) applied to the golden files.
 
 ## Execution
 
@@ -62,7 +63,7 @@ The tool reads in from and writes out to an expected directory structure.
 
 The `--tests` flag specifies the input directory for the test cases.
 
-Within the target directory there should be a set of subdirectories, with each subdirectory containing a single test case. Each test case is made up of a `spec.json` file, providing any customisations for the test, and then a set of `.tf` files. The tool uses the name of each subdirectory to name the test case in any logs or output it produces.
+Within the target directory there should be a set of subdirectories, with each subdirectory containing a single test case. Each test case is made up of a `spec.json` (note that this is parsed as JSONC, so you can add comments to it) file, providing any customisations for the test, and then a set of `.tf` files. The tool uses the name of each subdirectory to name the test case in any logs or output it produces.
 
 Example input directory structure:
 
@@ -113,11 +114,9 @@ included by all tests automatically.
 - The `state.json` file contains the output of `$binary show -json`.
 - The `plan.json` file contains the output of
   `$binary show -json equivalence_test_plan`.
-- The `plan` file contains the raw human-readable captured output of the 
-  original `$binary plan` command.
+- The `plan` file contains the raw human-readable captured output of the original `$binary plan` command.
 
-You can then use this field to specify any additional files that should also be 
-considered golden files.
+You can then use this field to specify any additional files that should also be considered golden files.
 
 ### IgnoreFields
 
@@ -216,3 +215,15 @@ The following example demonstrates how to replicate the default commands using t
   ]
 }
 ```
+
+### Rewrites
+
+You can specify a custom list of rewrites to ignore well-known differences between files being compared. Rewrites are a map of file name to a "from" - "to" mapping to apply to the file. These are meant to be direct mappings.
+
+For example, a rewrite like:
+
+```json
+{ "plan": { "bacon": "cabbage" } }
+```
+
+... will replace each instance of the string "bacon" with "cabbage" in the `plan` file. With this replacement, a diff will not be generated if the only difference between the files is the string "bacon" vs "cabbage".
