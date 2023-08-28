@@ -27,11 +27,13 @@ var (
 	defaultFields = map[string][]string{
 		"apply.json": {
 			"0",
-			"*.@timestamp",
+			"*.@timestamp", // Timestamps are always different, avoiding flakes.
+			"*.@module",    // OpenTF will have a different value here.
 		},
 		"plan.json": {
 			"terraform_version",
 			"prior_state.terraform_version",
+			"timestamp", // Timestamps are always different, avoiding flakes.
 		},
 		"state.json": {
 			"terraform_version",
@@ -55,9 +57,7 @@ func (output TestOutput) Files() (map[string]*files.File, error) {
 	for name, file := range output.files {
 		contents, ok := file.Json()
 		if !ok {
-			// We only strip data out of JSON files, so skip this because it is
-			// not a JSON file.
-			ret[name] = file
+			ret[name] = file.WithRewrites(output.Test.Specification.Rewrites[name])
 			continue
 		}
 
