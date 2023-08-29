@@ -1,4 +1,4 @@
-# `equivalence-testing``
+# `equivalence-testing`
 
 The `equivalence-testing` repository provides a tool for comparing and updating state files, plan files, and the JSON output of the `apply` command, produced by OpenTF-like binary executions.
 
