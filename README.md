@@ -218,7 +218,7 @@ The following example demonstrates how to replicate the default commands using t
 
 ### Rewrites
 
-You can specify a custom list of rewrites to ignore well-known differences between files being compared. Rewrites are a map of file name to a "from" - "to" mapping to apply to the file. These are meant to be direct mappings.
+You can specify a custom list of rewrites (supporting regexps, see [this function](https://pkg.go.dev/regexp#Regexp.ReplaceAll) for details) to ignore well-known differences between files being compared. Rewrites are a map of file name to a "from" - "to" mapping to apply to the file. These are meant to be direct mappings.
 
 For example, a rewrite like:
 

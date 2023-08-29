@@ -6,9 +6,11 @@ package tests
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 
 	"github.com/google/go-cmp/cmp"
 
@@ -57,7 +59,7 @@ func (output TestOutput) Files() (map[string]*files.File, error) {
 	for name, file := range output.files {
 		contents, ok := file.Json()
 		if !ok {
-			ret[name] = file.WithRewrites(output.Test.Specification.Rewrites[name])
+			ret[name] = file
 			continue
 		}
 
@@ -162,6 +164,15 @@ func (output TestOutput) UpdateGoldenFiles(target string) error {
 		case files.Raw:
 			contents, _ := file.String()
 			data = []byte(contents)
+		}
+
+		for expression, replacement := range output.Test.Specification.Rewrites[name] {
+			re, err := regexp.Compile(expression)
+			if err != nil {
+				return fmt.Errorf("invalid expression %q for file %q: %w", expression, name, err)
+			}
+
+			data = re.ReplaceAll(data, []byte(replacement))
 		}
 
 		target := path.Join(tmp, name)
