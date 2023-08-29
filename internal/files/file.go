@@ -6,7 +6,6 @@ package files
 import (
 	"encoding/json"
 	"path/filepath"
-	"strings"
 )
 
 const (
@@ -42,7 +41,6 @@ func NewJsonFile(contents interface{}) *File {
 type File struct {
 	contents interface{}
 	ext      string
-	rewrites map[string]string
 }
 
 func (f File) Ext() string {
@@ -58,21 +56,7 @@ func (f File) Json() (interface{}, bool) {
 
 func (f File) String() (string, bool) {
 	if f.ext == Raw {
-		out := f.contents.(string)
-
-		for from, to := range f.rewrites {
-			out = strings.ReplaceAll(out, from, to)
-		}
-
-		return out, true
+		return f.contents.(string), true
 	}
 	return "", false
-}
-
-func (f File) WithRewrites(rewrites map[string]string) *File {
-	return &File{
-		contents: f.contents,
-		ext:      f.ext,
-		rewrites: rewrites,
-	}
 }
