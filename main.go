@@ -9,7 +9,7 @@ import (
 
 	"github.com/mitchellh/cli"
 
-	"github.com/opentffoundation/equivalence-testing/internal/cmd"
+	"github.com/opentofu/equivalence-testing/internal/cmd"
 )
 
 var (

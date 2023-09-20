@@ -12,8 +12,8 @@ import (
 	"github.com/komkom/jsonc/jsonc"
 	"github.com/mitchellh/cli"
 
-	"github.com/opentffoundation/equivalence-testing/internal/binary"
-	"github.com/opentffoundation/equivalence-testing/internal/tests"
+	"github.com/opentofu/equivalence-testing/internal/binary"
+	"github.com/opentofu/equivalence-testing/internal/tests"
 )
 
 func UpdateCommandFactory(ui cli.Ui) cli.CommandFactory {

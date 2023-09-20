@@ -9,9 +9,9 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/opentffoundation/equivalence-testing/internal/files"
-
 	"github.com/hashicorp/terraform-exec/tfexec"
+
+	"github.com/opentofu/equivalence-testing/internal/files"
 )
 
 // Command is a struct that instructs the framework how to execute a custom
