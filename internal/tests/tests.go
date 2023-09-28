@@ -10,8 +10,9 @@ import (
 	"path/filepath"
 
 	"github.com/komkom/jsonc/jsonc"
-	"github.com/opentffoundation/equivalence-testing/internal/binary"
-	"github.com/opentffoundation/equivalence-testing/internal/files"
+
+	"github.com/opentofu/equivalence-testing/internal/binary"
+	"github.com/opentofu/equivalence-testing/internal/files"
 )
 
 // Test defines a single equivalence test within our framework.

@@ -1,4 +1,4 @@
-module github.com/opentffoundation/equivalence-testing
+module github.com/opentofu/equivalence-testing
 
 go 1.18
 

@@ -3,7 +3,7 @@
 
 package tests
 
-import "github.com/opentffoundation/equivalence-testing/internal/binary"
+import "github.com/opentofu/equivalence-testing/internal/binary"
 
 // TestSpecification is a struct that provides the specification for a given
 // test case.
