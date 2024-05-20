@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 
@@ -110,22 +111,18 @@ func New(binaryName string) (Binary, error) {
 type binary struct {
 	binary  string
 	version string
+	dir     string
 }
 
 func (t *binary) Version() string {
 	return t.version
 }
 
-func (t *binary) ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]*files.File, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := os.Chdir(directory); err != nil {
-		return nil, err
-	}
-	defer os.Chdir(wd)
+func (tro *binary) ExecuteTest(directory string, includeFiles []string, commands ...Command) (map[string]*files.File, error) {
+	var err error
+	// Copy the struct and modify the directory field
+	t := *tro
+	t.dir = directory
 
 	savedFiles := map[string]*files.File{}
 	if len(commands) == 0 {
@@ -164,7 +161,7 @@ func (t *binary) ExecuteTest(directory string, includeFiles []string, commands .
 	}
 
 	for _, includeFile := range includeFiles {
-		raw, err := os.ReadFile(includeFile)
+		raw, err := os.ReadFile(path.Join(t.dir, includeFile))
 		if err != nil {
 			return nil, fmt.Errorf("could not read additional file (%s): %v", includeFile, err)
 		}
@@ -177,7 +174,7 @@ func (t *binary) ExecuteTest(directory string, includeFiles []string, commands .
 }
 
 func (t *binary) command(command Command) (*files.File, error) {
-	capture, err := run(exec.Command(t.binary, command.Arguments...), command.Name)
+	capture, err := t.run(exec.Command(t.binary, command.Arguments...), command.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +201,7 @@ func (t *binary) command(command Command) (*files.File, error) {
 }
 
 func (t *binary) init() error {
-	_, err := run(exec.Command(t.binary, "init"), "init")
+	_, err := t.run(exec.Command(t.binary, "init"), "init")
 	if err != nil {
 		return err
 	}
@@ -212,7 +209,7 @@ func (t *binary) init() error {
 }
 
 func (t *binary) plan() (*files.File, error) {
-	capture, err := run(exec.Command(t.binary, "plan", "-out=equivalence_test_plan", "-no-color"), "plan")
+	capture, err := t.run(exec.Command(t.binary, "plan", "-out=equivalence_test_plan", "-no-color"), "plan")
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +217,7 @@ func (t *binary) plan() (*files.File, error) {
 }
 
 func (t *binary) apply() (*files.File, error) {
-	capture, err := run(exec.Command(t.binary, "apply", "-json", "equivalence_test_plan"), "apply")
+	capture, err := t.run(exec.Command(t.binary, "apply", "-json", "equivalence_test_plan"), "apply")
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +230,7 @@ func (t *binary) apply() (*files.File, error) {
 }
 
 func (t *binary) showState() (*files.File, error) {
-	capture, err := run(exec.Command(t.binary, "show", "-no-color"), "show state")
+	capture, err := t.run(exec.Command(t.binary, "show", "-no-color"), "show state")
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +238,7 @@ func (t *binary) showState() (*files.File, error) {
 }
 
 func (t *binary) showJsonPlan() (*files.File, error) {
-	capture, err := run(exec.Command(t.binary, "show", "-json", "equivalence_test_plan"), "show json plan")
+	capture, err := t.run(exec.Command(t.binary, "show", "-json", "equivalence_test_plan"), "show json plan")
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +251,7 @@ func (t *binary) showJsonPlan() (*files.File, error) {
 }
 
 func (t *binary) showJsonState() (*files.File, error) {
-	capture, err := run(exec.Command(t.binary, "show", "-json"), "show json state")
+	capture, err := t.run(exec.Command(t.binary, "show", "-json"), "show json state")
 	if err != nil {
 		return nil, err
 	}
@@ -266,7 +263,8 @@ func (t *binary) showJsonState() (*files.File, error) {
 	return files.NewJsonFile(json), nil
 }
 
-func run(cmd *exec.Cmd, command string) (*capture, error) {
+func (t *binary) run(cmd *exec.Cmd, command string) (*capture, error) {
+	cmd.Dir = t.dir
 	capture := Capture(cmd)
 	if err := cmd.Run(); err != nil {
 		return capture, Error{
