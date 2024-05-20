@@ -32,6 +32,9 @@ type Flags struct {
 	// The relative or absolute path to the JSONC file containing global
 	// rewrites. This can be empty, in which case there are no global rewrites.
 	RewritesPath string
+
+	// How many instances of the binary to run in parallel
+	Parallel int
 }
 
 func ParseFlags(command string, args []string) (*Flags, error) {
@@ -44,6 +47,7 @@ func ParseFlags(command string, args []string) (*Flags, error) {
 	fs.StringVar(&flags.BinaryPath, "binary", "opentf", "Absolute or relative path to the target binary.")
 	fs.StringVar(&flags.RewritesPath, "rewrites", "", "Absolute or relative path to the JSONC file containing global rewrites.")
 	fs.Var(&flags.TestFilters, "filters", "If specified, only test cases included in this list will be executed.")
+	fs.IntVar(&flags.Parallel, "parallel", 1, "How many instances of the binary to run in parallel")
 
 	if err := fs.Parse(args); err != nil {
 		return nil, err

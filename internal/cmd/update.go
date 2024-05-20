@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/komkom/jsonc/jsonc"
 	"github.com/mitchellh/cli"
@@ -85,31 +86,47 @@ func (cmd *updateCommand) Run(args []string) int {
 	successfulTests := 0
 	failedTests := 0
 
+	var wg sync.WaitGroup
+	running := make(chan interface{}, flags.Parallel)
+
 	for _, test := range testCases {
-		cmd.ui.Output(fmt.Sprintf("[%s]: starting...", test.Name))
+		test := test
 
-		output, err := test.RunWith(tf)
-		if err != nil {
-			failedTests++
-			if tfErr, ok := err.(binary.Error); ok {
-				cmd.ui.Output(fmt.Sprintf("[%s]: %s", test.Name, tfErr))
-				continue
+		wg.Add(1)
+		running <- nil
+		go func() {
+			defer func() {
+				<-running
+				wg.Done()
+			}()
+
+			cmd.ui.Output(fmt.Sprintf("[%s]: starting...", test.Name))
+
+			output, err := test.RunWith(tf)
+			if err != nil {
+				failedTests++
+				if tfErr, ok := err.(binary.Error); ok {
+					cmd.ui.Output(fmt.Sprintf("[%s]: %s", test.Name, tfErr))
+					return
+				}
+				cmd.ui.Output(fmt.Sprintf("[%s]: unknown error (%v)", test.Name, err))
+				return
 			}
-			cmd.ui.Output(fmt.Sprintf("[%s]: unknown error (%v)", test.Name, err))
-			continue
-		}
 
-		cmd.ui.Output(fmt.Sprintf("[%s]: updating golden files...", test.Name))
+			cmd.ui.Output(fmt.Sprintf("[%s]: updating golden files...", test.Name))
 
-		if err := output.UpdateGoldenFiles(flags.GoldenFilesDirectory); err != nil {
-			failedTests++
-			cmd.ui.Output(fmt.Sprintf("[%s]: unknown error (%v)", test.Name, err))
-			continue
-		}
+			if err := output.UpdateGoldenFiles(flags.GoldenFilesDirectory); err != nil {
+				failedTests++
+				cmd.ui.Output(fmt.Sprintf("[%s]: unknown error (%v)", test.Name, err))
+				return
+			}
 
-		successfulTests++
-		cmd.ui.Output(fmt.Sprintf("[%s]: complete\n", test.Name))
+			successfulTests++
+			cmd.ui.Output(fmt.Sprintf("[%s]: complete\n", test.Name))
+		}()
 	}
+
+	wg.Wait()
 
 	cmd.ui.Output("Equivalence testing complete.")
 	cmd.ui.Output(fmt.Sprintf("\tAttempted %d test(s).", len(testCases)))
