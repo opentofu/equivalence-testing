@@ -161,8 +161,7 @@ func (tro *binary) ExecuteTest(directory string, includeFiles []string, commands
 	}
 
 	for _, includeFile := range includeFiles {
-		includeFile = path.Join(t.dir, includeFile)
-		raw, err := os.ReadFile(includeFile)
+		raw, err := os.ReadFile(path.Join(t.dir, includeFile))
 		if err != nil {
 			return nil, fmt.Errorf("could not read additional file (%s): %v", includeFile, err)
 		}
